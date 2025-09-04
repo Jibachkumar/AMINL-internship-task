@@ -105,7 +105,10 @@ const viewTodo = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     // Fetch paginated todos and skip the todo based on page
-    const todos = await Todo.find().skip(skip).limit(limit);
+    const todos = await Todo.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     if (todos.length === 0) {
       throw new ApiError(500, "Internal server Error");
