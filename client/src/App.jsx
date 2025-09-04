@@ -6,11 +6,14 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTodos, setSearchTodos] = useState([]);
+  const [editForm, setEditForm] = useState(null);
 
   const limit = 5;
 
@@ -107,17 +110,19 @@ function App() {
   };
 
   //edit todos
-  const editTodo = async (id) => {
+  const editTodo = async (e) => {
+    e.preventDefault();
     setError("");
+    console.log(editForm);
     try {
-      const response = await fetch(`/api/v1/todos/edittodo/${id}`, {
+      const response = await fetch(`/api/v1/todos/edittodo/${editForm}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title,
-          description,
+          title: editTitle,
+          description: editDescription,
         }),
       });
 
@@ -127,8 +132,10 @@ function App() {
       if (!response.ok) {
         throw new Error(data.message);
       }
-
-      refetchTodos(2000);
+      refetchTodos(1000);
+      setEditForm(null);
+      setEditTitle("");
+      setEditDescription("");
     } catch (error) {
       setError(error.message);
     }
@@ -248,7 +255,9 @@ function App() {
                     <div className="flex gap-x-2 items-center">
                       <button
                         className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-300 shrink-0 disabled:opacity-50"
-                        onClick={() => editTodo(todo._id)}
+                        onClick={() => {
+                          setEditForm(todo._id);
+                        }}
                       >
                         {"✏️"}
                       </button>
@@ -261,36 +270,72 @@ function App() {
                     </div>
                   </div>
                 ))}
+
+              {/* editForm */}
+              {editForm && (
+                <div className="relative">
+                  <form
+                    onSubmit={editTodo}
+                    className="flex flex-col p-6 gap-y-1 min-w-[30rem] absolute z-10 bg-[#b5bcc5] rounded-md shadow-lg -mb-[20rem] top-0 left-1/2 -translate-x-1/2 -translate-y-[165%]"
+                  >
+                    <button
+                      onClick={() => setEditForm(null)}
+                      aria-label="Close"
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black bg-opacity-70 flex items-center justify-center text-white text-lg"
+                    >
+                      X
+                    </button>
+                    <Input
+                      value={editTitle}
+                      placeholder="write title"
+                      onChange={setEditTitle}
+                    />
+                    <Input
+                      value={editDescription}
+                      placeholder="write description..."
+                      onChange={setEditDescription}
+                    />
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-red-900 shadow-md rounded-sm hover:scale-105 transition-all duration-300"
+                    >
+                      Edit
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
 
             {/* Pagination button */}
-            <div className="w-2xl flex mx-auto justify-between">
-              <button
-                onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                disabled={page === 1}
-                className={`px-3 py-1 rounded-md shadow-md transition-all duration-300 bg-white
+            {totalPages > 1 && (
+              <div className="w-2xl flex mx-auto justify-between">
+                <button
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  disabled={page === 1}
+                  className={`px-3 py-1 rounded-md shadow-md transition-all duration-300 bg-white
                   ${
                     page === 1
                       ? "cursor-not-allowed opacity-50"
                       : " hover:scale-105"
                   }`}
-              >
-                Prev
-              </button>
+                >
+                  Prev
+                </button>
 
-              <button
-                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-                className={`px-3 py-1 rounded-md shadow-md transition-all duration-300 bg-white
+                <button
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={page === totalPages}
+                  className={`px-3 py-1 rounded-md shadow-md transition-all duration-300 bg-white
                   ${
                     page === totalPages
                       ? "cursor-not-allowed opacity-50"
                       : " hover:scale-105"
                   }`}
-              >
-                Next
-              </button>
-            </div>
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
