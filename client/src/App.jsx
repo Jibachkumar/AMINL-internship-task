@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import Input from "./components/Input.jsx";
+import {
+  fetchTodo,
+  addTodo,
+  deleteTodo,
+  editTodo,
+  handleSearchTodo,
+} from "./components/apis/todoApi.js";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -17,69 +24,45 @@ function App() {
 
   const limit = 5;
 
-  //todos panigation
-  const fetchTodo = async () => {
+  // load todos with pagination
+  const loadTodos = async () => {
     setError("");
     try {
-      const response = await fetch(
-        `/api/v1/todos/viewtodo?page=${page}&limit=${limit}`
-      );
-
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+      const data = await fetchTodo(page, limit);
 
       if (data) {
         setTodos(data.todos);
         setTotalPages(data.totalPages);
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   useEffect(() => {
-    fetchTodo();
+    // fetchTodo();
+    loadTodos();
   }, [page]);
 
   // set Time to refetch todos
   const refetchTodos = (second = 3000) => {
     setTimeout(() => {
-      fetchTodo();
+      // fetchTodo();
+      loadTodos();
     }, second);
   };
 
   // add todo
-  const add = async (e) => {
+  const handleAddTodo = async (e) => {
     e.preventDefault();
     setError("");
-
+    setDescription("");
+    setTitle("");
     try {
-      const response = await fetch("/api/v1/todos/addtodo", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title,
-          description,
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+      const data = await addTodo(title, description);
 
       if (data) {
         setTodos((prev) => [data.todo, ...prev.slice(0, limit - 1)]);
-        setDescription("");
-        setTitle("");
 
         // after added the todo refresh panigation
         refetchTodos(2000);
@@ -90,19 +73,10 @@ function App() {
   };
 
   // delete todo
-  const deleteTodo = async (id) => {
+  const handleDeleteTodo = async (id) => {
     setError("");
     try {
-      const response = await fetch(`/api/v1/todos/deletetodo/${id}`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
+      await deleteTodo(id);
       refetchTodos(1000);
     } catch (error) {
       setError(error.message);
@@ -110,28 +84,11 @@ function App() {
   };
 
   //edit todos
-  const editTodo = async (e) => {
+  const handleEditTodo = async (e) => {
     e.preventDefault();
     setError("");
-    console.log(editForm);
     try {
-      const response = await fetch(`/api/v1/todos/edittodo/${editForm}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: editTitle,
-          description: editDescription,
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+      await editTodo(editForm, editTitle, editDescription);
       refetchTodos(1000);
       setEditForm(null);
       setEditTitle("");
@@ -142,22 +99,12 @@ function App() {
   };
 
   // search todo
-  const handleTodoSearch = async (searchInput) => {
+  const handleTodoSearch = async () => {
     setError("");
     setSearchInput("");
     try {
-      const response = await fetch(
-        `/api/v1/todos/searchtodo?query=${encodeURIComponent(searchInput)}`
-      );
-
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+      const data = await handleSearchTodo(searchInput);
       setSearchTodos(data.todo);
-      setSearchInput("");
     } catch (error) {
       setError(error.message);
       setSearchTodos([]);
@@ -180,14 +127,14 @@ function App() {
               onChange={setSearchInput}
             />
             <button
-              onClick={() => handleTodoSearch(searchInput)}
+              onClick={handleTodoSearch}
               className="px-5 py-2 bg-red-900 shadow-md rounded-sm hover:scale-105 transition-all duration-300"
             >
               search
             </button>
           </div>
 
-          <form onSubmit={add} className="flex gap-1 mb-2">
+          <form onSubmit={handleAddTodo} className="flex gap-1 mb-2">
             <Input
               value={title}
               placeholder="write title"
@@ -263,7 +210,7 @@ function App() {
                       </button>
                       <button
                         className="inline-flex w-8 h-8 rounded-lg text-sm border border-black/10 justify-center items-center bg-gray-50 hover:bg-gray-300 shrink-0"
-                        onClick={() => deleteTodo(todo._id)}
+                        onClick={() => handleDeleteTodo(todo._id)}
                       >
                         ❌
                       </button>
@@ -275,7 +222,7 @@ function App() {
               {editForm && (
                 <div className="relative">
                   <form
-                    onSubmit={editTodo}
+                    onSubmit={handleEditTodo}
                     className="flex flex-col p-6 gap-y-1 min-w-[30rem] absolute z-10 bg-[#b5bcc5] rounded-md shadow-lg -mb-[20rem] top-0 left-1/2 -translate-x-1/2 -translate-y-[165%]"
                   >
                     <button

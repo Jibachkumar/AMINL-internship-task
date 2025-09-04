@@ -36,6 +36,13 @@ const editTodo = async (req, res, next) => {
       throw new ApiError(404, "Todo not found");
     }
 
+    if (
+      (title === undefined || title.trim() === "") &&
+      (description === undefined || description.trim() === "")
+    ) {
+      throw new ApiError(400, "Please fill the form to update the todo");
+    }
+
     const updatedTodo = {};
 
     if (title) {
