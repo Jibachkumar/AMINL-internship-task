@@ -1,8 +1,10 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 //todos panigation
 const fetchTodo = async (page, limit) => {
   try {
     const response = await fetch(
-      `/api/v1/todos/viewtodo?page=${page}&limit=${limit}`
+      `${API_URL}/api/v1/todos/viewtodo?page=${page}&limit=${limit}`
     );
 
     const data = await response.json();
@@ -20,7 +22,7 @@ const fetchTodo = async (page, limit) => {
 // add todo
 const addTodo = async (title, description) => {
   try {
-    const response = await fetch("/api/v1/todos/addtodo", {
+    const response = await fetch(`${API_URL}/api/v1/todos/addtodo`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +48,7 @@ const addTodo = async (title, description) => {
 // delete todo
 const deleteTodo = async (id) => {
   try {
-    const response = await fetch(`/api/v1/todos/deletetodo/${id}`, {
+    const response = await fetch(`${API_URL}/api/v1/todos/deletetodo/${id}`, {
       method: "DELETE",
     });
 
@@ -63,16 +65,19 @@ const deleteTodo = async (id) => {
 //edit todos
 const editTodo = async (editForm, editTitle, editDescription) => {
   try {
-    const response = await fetch(`/api/v1/todos/edittodo/${editForm}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: editTitle,
-        description: editDescription,
-      }),
-    });
+    const response = await fetch(
+      `${API_URL}/api/v1/todos/edittodo/${editForm}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: editTitle,
+          description: editDescription,
+        }),
+      }
+    );
 
     const data = await response.json();
 
@@ -88,7 +93,9 @@ const editTodo = async (editForm, editTitle, editDescription) => {
 const handleSearchTodo = async (searchInput) => {
   try {
     const response = await fetch(
-      `/api/v1/todos/searchtodo?query=${encodeURIComponent(searchInput)}`
+      `${API_URL}/api/v1/todos/searchtodo?query=${encodeURIComponent(
+        searchInput
+      )}`
     );
 
     const data = await response.json();

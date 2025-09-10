@@ -125,6 +125,7 @@ function App() {
               placeholder="Search..."
               value={searchInput}
               onChange={setSearchInput}
+              className="w-full border border-black/10 rounded-sm px-3 duration-150 bg-black/70 py-1 hover:border-white/90"
             />
             <button
               onClick={handleTodoSearch}
@@ -139,11 +140,13 @@ function App() {
               value={title}
               placeholder="write title"
               onChange={setTitle}
+              className="w-full border border-black/10 rounded-sm px-3  duration-150 bg-black/70 py-1 hover:border-white/90"
             />
             <Input
               value={description}
               placeholder="write description..."
               onChange={setDescription}
+              className="w-full border border-black/10 rounded-sm px-3 duration-150 bg-black/70 py-1 hover:border-white/90"
             />
             <button
               type="submit"
@@ -236,11 +239,13 @@ function App() {
                       value={editTitle}
                       placeholder="write title"
                       onChange={setEditTitle}
+                      className="w-full border border-black/10 rounded-sm px-3 duration-150 bg-black/70 py-1 hover:border-white/90"
                     />
                     <Input
                       value={editDescription}
                       placeholder="write description..."
                       onChange={setEditDescription}
+                      className="w-full border border-black/10 rounded-sm px-3 duration-150 bg-black/70 py-1 hover:border-white/90"
                     />
                     <button
                       type="submit"
