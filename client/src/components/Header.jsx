@@ -1,41 +1,9 @@
-import React from "react";
-import { useEffect } from "react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import LogoutBtn from "./LogoutBtn.jsx";
 
 function Header() {
-  const API_URL = import.meta.env.VITE_API_URL;
-
-  const [authStatus, setAuthStatus] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const status = localStorage.getItem("auth");
-
-    setAuthStatus(status === "true"); // convert into boolean
-  }, []);
-
-  const logout = async () => {
-    setError("");
-    try {
-      const response = await fetch(`${API_URL}/api/v1/users/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      localStorage.removeItem("auth");
-      setAuthStatus(false);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
+  const { status } = useSelector((state) => state.auth);
 
   return (
     <div className="px-20 py-4">
@@ -48,20 +16,9 @@ function Header() {
           </Link>
         </div>
 
-        {/* <div>
-          <ul>
-            <li>Home</li>
-          </ul>
-        </div> */}
-
         <div>
-          {authStatus ? (
-            <button
-              onClick={logout}
-              className="bg-white/85 mr-24 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer"
-            >
-              Logout
-            </button>
+          {status ? (
+            <LogoutBtn />
           ) : (
             <Link to="/login">
               <button className="bg-white/85 mr-24 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer">

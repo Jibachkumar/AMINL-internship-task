@@ -6,6 +6,9 @@ import AuthLayout from "./components/AuthLayout.jsx";
 import Signup from "./components/pages/Signup.jsx";
 import Login from "./components/pages/Login.jsx";
 import Layout from "./components/Layout.jsx";
+import { store } from "./store/store.js";
+import { Provider } from "react-redux";
+import { AuthInitializer } from "./components/AuthInitializer.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,6 +44,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <AuthInitializer>
+        <RouterProvider router={router} />
+      </AuthInitializer>
+    </Provider>
   </StrictMode>
 );

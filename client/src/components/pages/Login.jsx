@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Input from "../Input.jsx";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login as authLogin } from "../../store/authSlice.js";
 
 function Login() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -10,6 +12,7 @@ function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const login = async (e) => {
     e.preventDefault();
@@ -36,7 +39,7 @@ function Login() {
       }
 
       if (data) {
-        localStorage.setItem("auth", "true");
+        dispatch(authLogin({ userData: data.user.loggedInUser }));
         navigate("/");
         setEmail("");
         setPassword("");
