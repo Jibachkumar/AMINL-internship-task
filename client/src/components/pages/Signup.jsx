@@ -7,6 +7,9 @@ function Signup() {
   const [userName, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [number, setNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [coverImage, setCoverImage] = useState(null);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -16,16 +19,18 @@ function Signup() {
     setError("");
 
     try {
+      // special object for building multipart/form-data requests
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("phoneNumber", number);
+      formData.append("address", address);
+      formData.append("coverImage", coverImage);
+
       const repsonse = await fetch(`${API_URL}/api/v1/users/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName,
-          email,
-          password,
-        }),
+        body: formData,
       });
 
       const data = await repsonse.json();
@@ -39,16 +44,19 @@ function Signup() {
       setUsername("");
       setEmail("");
       setPassword("");
+      setAddress("");
+      setNumber("");
+      setCoverImage(null);
     } catch (error) {
       console.log(error.message);
       setError(error.message);
     }
   };
   return (
-    <div className="">
-      <form onSubmit={register} className="w-full h-screen mt-12">
+    <div className="bg-white">
+      <form onSubmit={register} className="">
         <div className="flex justify-center">
-          <div className="mt-20 flex self-stretch flex-col bg-white/90 rounded-md border border-slate-300 px-10 py-5">
+          <div className="mt-20 flex self-stretch flex-col bg-white/90 rounded-md border border-slate-200 px-10 py-5">
             <div className=" text-center font-serif">
               <h2 className="  font-semibold xl:text-xl text-black">
                 Sign up to your account
@@ -67,6 +75,51 @@ function Signup() {
                 onChange={setUsername}
                 className="border w-[20rem] border-black/35 rounded-md hover:border-indigo-900"
               />
+            </div>
+
+            <div className="mt-2">
+              <label htmlFor="number" className="font-serif text-sm py-2">
+                Phone Number
+              </label>{" "}
+              <br />
+              <Input
+                value={number}
+                type="number"
+                placeholder="number"
+                onChange={setNumber}
+                className="border w-[20rem] border-black/35 rounded-md hover:border-indigo-900"
+              />
+            </div>
+
+            <div className="mt-2">
+              <label htmlFor="address" className="font-serif text-sm py-2">
+                Address
+              </label>{" "}
+              <br />
+              <Input
+                value={address}
+                type="text"
+                placeholder="address"
+                onChange={setAddress}
+                className="border w-[20rem] border-black/35 rounded-md hover:border-indigo-900"
+              />
+            </div>
+
+            <div className="mt-2">
+              <label className="font-serif text-sm  block">Cover Image</label>
+              <div className="relative w-[20rem]">
+                <label className="w-full outline-none py-[1px] bg-slate-200 rounded-sm hover:bg-slate-300 flex gap-x-2 items-center cursor-pointer">
+                  <button type="button" className="text-sm">
+                    Browse
+                  </button>
+                  <span>{coverImage ? coverImage.name : "Select a file"}</span>
+                  <input
+                    type="file"
+                    onChange={(e) => setCoverImage(e.target.files[0])}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </label>
+              </div>
             </div>
 
             <div className="mt-2">

@@ -9,6 +9,7 @@ import Layout from "./components/Layout.jsx";
 import { store } from "./store/store.js";
 import { Provider } from "react-redux";
 import { AuthInitializer } from "./components/AuthInitializer.jsx";
+import Profile from "./components/pages/Profile.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,6 +36,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <Login />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <AuthLayout authentication={false}>
+            <Profile />
           </AuthLayout>
         ),
       },

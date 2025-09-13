@@ -1,6 +1,7 @@
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import jwt from "jsonwebtoken";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // helper function
 const generateAccessAndRefreshToken = async (userId) => {
@@ -23,9 +24,9 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 const registerUser = async (req, res, next) => {
   try {
-    const { userName, email, password } = req.body;
+    const { userName, email, address, phoneNumber, password } = req.body;
 
-    if ([userName, email, password].some((field) => field?.trim() === "")) {
+    if (!userName || !email || !address || !phoneNumber || !password) {
       throw new ApiError(400, "all field are required");
     }
     // check user already exit
@@ -35,17 +36,30 @@ const registerUser = async (req, res, next) => {
       throw new ApiError(409, "User with email is already exits");
     }
 
+    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    console.log("coverImageLocalPath: ", coverImageLocalPath);
+
+    if (!coverImageLocalPath) {
+      throw new ApiError(400, "cover image file is required");
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
     // create user
     const user = await User.create({
       userName: userName.toLowerCase(),
       email,
+      address,
+      phoneNumber,
+      coverImage: coverImage.url,
       password,
     });
 
     const createdUser = await User.findById(user._id).select(
-      "-passsword -refreshToken"
+      "-password -refreshToken"
     );
     console.log("createdUser", createdUser);
+
     if (!createdUser) {
       throw new ApiError(
         500,
@@ -140,7 +154,7 @@ const logoutUser = async (req, res, next) => {
 const getCurrentUser = async (req, res) => {
   return res
     .status(200)
-    .json({ user: req.user, message: "user fetched successfully" });
+    .json({ user: req?.user, message: "user fetched successfully" });
 };
 
 const refreshAccessToken = async (req, res, next) => {
@@ -185,10 +199,57 @@ const refreshAccessToken = async (req, res, next) => {
   }
 };
 
+const updateAccountDetails = async (req, res, next) => {
+  try {
+    const { userName, address, phoneNumber, email } = req.body;
+
+    if (!userName && !address && !phoneNumber && !email) {
+      throw new ApiError(400, "Sorry you did  not provide any field to update");
+    }
+
+    const updatedProfile = {};
+
+    if (userName) {
+      updatedProfile.userName = userName;
+    }
+
+    if (address) {
+      updatedProfile.address = address;
+    }
+
+    if (phoneNumber) {
+      updatedProfile.phoneNumber = phoneNumber;
+    }
+
+    if (email) {
+      updatedProfile.email = email;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $set: updatedProfile,
+      },
+      { new: true }
+    ).select("-password -refreshToken");
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return res
+      .status(200)
+      .json({ user, message: "Profile updated Successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   registerUser,
   loginUser,
   logoutUser,
   getCurrentUser,
   refreshAccessToken,
+  updateAccountDetails,
 };
