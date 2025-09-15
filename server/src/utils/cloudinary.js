@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { ApiError } from "./ApiError.js";
 
 dotenv.config({
   path: "./.env",
@@ -27,8 +28,16 @@ const uploadOnCloudinary = async (localFilePath, folder = "Todos") => {
   } catch (error) {
     console.error("Cloudinary error:", error.message);
     fs.unlinkSync(localFilePath);
-    return null;
+    throw new ApiError(error);
   }
 };
 
-export { uploadOnCloudinary };
+const deleteImageFromCloudinary = async (publicId) => {
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    throw new ApiError(error);
+  }
+};
+
+export { uploadOnCloudinary, deleteImageFromCloudinary };

@@ -9,8 +9,9 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [userName, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneMunber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [coverImage, setCoverImage] = useState(null);
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
@@ -20,21 +21,21 @@ function Profile() {
     e.preventDefault();
     setError("");
     try {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("email", email);
+      formData.append("phoneNumber", phoneNumber);
+      formData.append("address", address);
+      formData.append("coverImage", coverImage);
+
       const response = await fetch(`${API_URL}/api/v1/users/update-account`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          userName,
-          phoneNumber,
-          address,
-        }),
+        body: formData,
         credentials: "include",
       });
 
       const user = await response.json();
+      console.log(user);
 
       if (!response.ok) {
         throw new Error(user.message);
@@ -43,6 +44,11 @@ function Profile() {
       if (user) {
         dispatch(authLogin({ userData: user.user }));
         setIsEditing(false);
+        setUsername("");
+        setPhoneNumber("");
+        setEmail("");
+        setAddress("");
+        setCoverImage("");
       }
     } catch (error) {
       setError(error.message);
@@ -55,7 +61,7 @@ function Profile() {
       <div className="w-full  bg-slate-700 relative flex items-center justify-center">
         <div className="w-full h-[23rem] overflow-hidden">
           <img
-            src={userData?.coverImage || "add coverImage"}
+            src={userData?.coverImage?.url || "add coverImage"}
             alt="image"
             className="w-full h-[23rem] object-cover"
           />
@@ -90,7 +96,7 @@ function Profile() {
 
       {/* edit profile */}
       {isEditing && (
-        <div className="absolute top-64 left-1/2 -translate-x-1/2 z-50">
+        <div className="absolute top-60 left-1/2 -translate-x-1/2 z-50">
           <form onSubmit={changeProfile}>
             <div className="flex justify-center">
               <div className="mt-20 flex self-stretch flex-col bg-white rounded-md shadow-xl border border-slate-200 px-10 py-5">
@@ -123,7 +129,7 @@ function Profile() {
                     value={phoneNumber}
                     type="number"
                     placeholder="number"
-                    onChange={setPhoneMunber}
+                    onChange={setPhoneNumber}
                     className="border w-[20rem] border-black/35 rounded-md hover:border-indigo-900"
                   />
                 </div>
@@ -154,6 +160,27 @@ function Profile() {
                     onChange={setEmail}
                     className="border w-[20rem] border-black/35 rounded-md hover:border-indigo-900"
                   />
+                </div>
+
+                <div className="mt-2">
+                  <label className="font-serif text-sm  block">
+                    Cover Image
+                  </label>
+                  <div className="relative w-[20rem]">
+                    <label className="w-full outline-none py-[1px] bg-slate-200 rounded-sm hover:bg-slate-300 flex gap-x-2 items-center cursor-pointer">
+                      <button type="button" className="text-sm">
+                        Browse
+                      </button>
+                      <span>
+                        {coverImage ? coverImage.name : "Select a file"}
+                      </span>
+                      <input
+                        type="file"
+                        onChange={(e) => setCoverImage(e.target.files[0])}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 {error && <p className="text-red-700 text-center">{error}</p>}

@@ -10,6 +10,8 @@ import { store } from "./store/store.js";
 import { Provider } from "react-redux";
 import { AuthInitializer } from "./components/AuthInitializer.jsx";
 import Profile from "./components/pages/Profile.jsx";
+import ForgotPassword from "./components/pages/ForgotPassword.jsx";
+import ResetPassword from "./components/pages/ResetPassword.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -44,6 +46,22 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <Profile />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/forgot-password",
+        element: (
+          <AuthLayout authentication={false}>
+            <ForgotPassword />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/reset-password/:token",
+        element: (
+          <AuthLayout authentication={false}>
+            <ResetPassword />
           </AuthLayout>
         ),
       },

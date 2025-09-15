@@ -52,7 +52,7 @@ function Login() {
     <div className="w-full h-screen">
       <form onSubmit={login} className=" mt-12">
         <div className="flex justify-center">
-          <div className="mt-20 flex self-stretch flex-col bg-white/90 rounded-md border border-slate-300 px-10 py-5">
+          <div className="relative mt-20 flex self-stretch flex-col bg-white/90 rounded-md border border-slate-300 px-10 py-5">
             <div className=" text-center font-serif">
               <h2 className="  font-semibold xl:text-xl text-black">
                 Sign in to your account
@@ -84,15 +84,18 @@ function Login() {
                 className="border border-black/35 w-[20rem] rounded-md hover:border-indigo-900"
               />
             </div>
-            <p className="text-right font-sans text-sm font-medium text-indigo-900 my-4">
-              Forget password?
-            </p>
+            <button
+              onClick={() => navigate("/forgot-password")}
+              className="text-right relative ml-auto w-[7rem] font-sans text-sm font-medium text-indigo-900 my-4 cursor-pointer hover:scale-105 duration-300 ease-in-out"
+            >
+              Forgot Password?
+            </button>
 
-            {error && <p className="text-red-700">{error}</p>}
+            {error && <p className="text-red-700 text-center mb-2">{error}</p>}
 
             <button
               type="submit"
-              className="w-[20rem] py-1 bg-indigo-600 rounded-md shadow-md font-serif font-medium text-white/95"
+              className="w-[20rem] py-1 bg-indigo-600 rounded-md shadow-md font-serif font-medium text-white/95 cursor-pointer hover:scale-105 duration-300 ease-in-out"
             >
               Sign in
             </button>
