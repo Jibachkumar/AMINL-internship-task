@@ -24,7 +24,7 @@ userRouter.route("/current-user").get(verifyJWT, getCurrentUser);
 userRouter.route("/refresh-token").post(refreshAccessToken);
 userRouter
   .route("/update-account")
-  .post(
+  .patch(
     verifyJWT,
     upload.fields([{ name: "coverImage", maxCount: 1 }]),
     updateAccountDetails

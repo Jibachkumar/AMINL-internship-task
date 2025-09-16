@@ -2,6 +2,12 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+
+const swaggerFile = JSON.parse(
+  fs.readFileSync(new URL("./swagger-output.json", import.meta.url))
+);
 
 dotenv.config({
   path: "./.env",
@@ -24,6 +30,9 @@ app.use(cookieParser());
 // import routes
 import { todoRouter } from "./routes/todo.routes.js";
 import { userRouter } from "./routes/user.routes.js";
+
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // routes declaration
 app.use("/api/v1/todos", todoRouter);

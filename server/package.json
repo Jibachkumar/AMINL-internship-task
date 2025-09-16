@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "swagger": "node src/swagger.js",
     "dev": "nodemon src/index.js"
   },
   "author": "jibachh kumar",
@@ -24,5 +25,9 @@
     "nodemon": "^3.1.10",
     "npm": "^11.5.2",
     "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   }
 }

@@ -22,14 +22,14 @@ function Profile() {
     setError("");
     try {
       const formData = new FormData();
-      formData.append("userName", userName);
-      formData.append("email", email);
-      formData.append("phoneNumber", phoneNumber);
-      formData.append("address", address);
-      formData.append("coverImage", coverImage);
+      if (userName) formData.append("userName", userName);
+      if (email) formData.append("email", email);
+      if (phoneNumber) formData.append("phoneNumber", phoneNumber);
+      if (address) formData.append("address", address);
+      if (coverImage) formData.append("coverImage", coverImage);
 
       const response = await fetch(`${API_URL}/api/v1/users/update-account`, {
-        method: "POST",
+        method: "PATCH",
         body: formData,
         credentials: "include",
       });

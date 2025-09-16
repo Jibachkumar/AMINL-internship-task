@@ -23,7 +23,7 @@ const fetchTodo = async (page, limit) => {
 const addTodo = async (title, description) => {
   try {
     const response = await fetch(`${API_URL}/api/v1/todos/addtodo`, {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
