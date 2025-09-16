@@ -17,7 +17,7 @@ const userSchema = new Schema(
       unique: true,
     },
     address: {
-      typ: String,
+      type: String,
     },
     phoneNumber: {
       type: Number,
@@ -31,7 +31,7 @@ const userSchema = new Schema(
       },
     },
     password: {
-      typ: String,
+      type: String,
     },
     role: {
       type: String,

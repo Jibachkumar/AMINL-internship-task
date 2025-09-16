@@ -100,6 +100,27 @@ function Login() {
               Sign in
             </button>
 
+            <div className="mt-5">
+              <div className="flex items-center">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <h3 className="px-3 text-center font-serif text-xs text-gray-600">
+                  or login with
+                </h3>
+                <div className="flex-grow border-t border-gray-300"></div>
+              </div>
+
+              <div className="flex justify-center mt-3">
+                <Link to={`${API_URL}/api/v1/users/google`}>
+                  <button
+                    type="button"
+                    className="px-2 pb-[3px] bg-slate-300 text-black rounded-full hover:scale-105 duration-300 ease-in-out cursor-pointer"
+                  >
+                    <i className="fa-brands fa-google text-xs"></i>
+                  </button>
+                </Link>
+              </div>
+            </div>
+
             <div className=" text-center font-semibold text-black mt-2 bg-gray-200 p-1">
               <p className=" rounded-lg text-black font-medium text-roman cursor-pointer underline">
                 Don&apos;t have an Account?{" "}
@@ -111,9 +132,6 @@ function Login() {
           </div>
         </div>
       </form>
-      <Link to={`${API_URL}/api/v1/users/google`}>
-        <button>Login with Google</button>
-      </Link>
     </div>
   );
 }

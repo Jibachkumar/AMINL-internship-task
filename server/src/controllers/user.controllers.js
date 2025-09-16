@@ -41,7 +41,7 @@ const registerUser = async (req, res, next) => {
       throw new ApiError(409, "User with email is already exits");
     }
 
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
     console.log("coverImageLocalPath: ", coverImageLocalPath);
 
     if (!coverImageLocalPath) {
@@ -85,9 +85,10 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log(password, email);
 
-    if (!email) {
-      throw new ApiError(400, "email is required");
+    if (!email || !password) {
+      throw new ApiError(400, "all field is required");
     }
 
     const user = await User.findOne({ email });

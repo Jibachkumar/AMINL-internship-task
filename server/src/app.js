@@ -32,15 +32,15 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // import routes
-import { todoRouter } from "./routes/todo.routes.js";
 import { userRouter } from "./routes/user.routes.js";
+import { todoRouter } from "./routes/todo.routes.js";
 
 // Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // routes declaration
-app.use("/api/v1/todos", todoRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/todos", todoRouter);
 
 // error
 app.use((err, req, res, next) => {
