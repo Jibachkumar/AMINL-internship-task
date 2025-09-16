@@ -17,25 +17,21 @@ const userSchema = new Schema(
       unique: true,
     },
     address: {
-      type: String,
-      required: true,
+      typ: String,
     },
     phoneNumber: {
       type: Number,
-      required: true,
     },
     coverImage: {
       url: {
         type: String,
-        required: true,
       },
       public_id: {
         type: String,
       },
     },
     password: {
-      type: String,
-      required: true,
+      typ: String,
     },
     role: {
       type: String,
@@ -50,6 +46,9 @@ const userSchema = new Schema(
     },
     resetPasswordExpire: {
       type: Date,
+    },
+    googleId: {
+      type: String,
     },
   },
   { timestamps: true }

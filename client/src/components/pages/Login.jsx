@@ -111,6 +111,9 @@ function Login() {
           </div>
         </div>
       </form>
+      <Link to={`${API_URL}/api/v1/users/google`}>
+        <button>Login with Google</button>
+      </Link>
     </div>
   );
 }

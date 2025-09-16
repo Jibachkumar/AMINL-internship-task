@@ -7,7 +7,6 @@ import {
 } from "../utils/cloudinary.js";
 import crypto from "crypto";
 import { sendMail } from "../utils/sendMail.js";
-import { url } from "inspector";
 
 // helper function
 const generateAccessAndRefreshToken = async (userId) => {
@@ -326,6 +325,35 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const googleLogin = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+      user._id
+    );
+
+    const loggedInUser = await User.findById(user._id).select(
+      "-password -refreshToken"
+    );
+
+    console.log("loggedInUser", loggedInUser);
+    // return response
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .redirect(`${process.env.CORS_ORIGIN}`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -335,4 +363,5 @@ export {
   updateAccountDetails,
   forgotPassword,
   resetPassword,
+  googleLogin,
 };

@@ -8,10 +8,12 @@ import {
   updateAccountDetails,
   forgotPassword,
   resetPassword,
+  googleLogin,
 } from "../controllers/user.controllers.js";
 
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
+import passport from "../utils/password.js";
 
 const userRouter = Router();
 
@@ -31,5 +33,18 @@ userRouter
   );
 userRouter.route("/fogot-password").post(forgotPassword);
 userRouter.route("/reset-password/:token").post(resetPassword);
+
+// redirect user to google for login
+userRouter
+  .route("/google")
+  .get(passport.authenticate("google", { scope: ["profile", "email"] }));
+
+userRouter.route("/google/callback").get(
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: "/login",
+  }),
+  googleLogin
+);
 
 export { userRouter };

@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
+import passport from "./utils/password.js";
 
 const swaggerFile = JSON.parse(
   fs.readFileSync(new URL("./swagger-output.json", import.meta.url))
@@ -26,6 +27,9 @@ app.use(
 // express config
 app.use(express.json());
 app.use(cookieParser());
+
+// config passport
+app.use(passport.initialize());
 
 // import routes
 import { todoRouter } from "./routes/todo.routes.js";
