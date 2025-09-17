@@ -1,5 +1,6 @@
 import nodeMailer from "nodemailer";
 import { ApiError } from "./ApiError.js";
+import logger from "./logger.js";
 
 const sendMail = async ({ to, subject, html }) => {
   try {
@@ -17,7 +18,9 @@ const sendMail = async ({ to, subject, html }) => {
       subject,
       html,
     });
+    logger.info("Email sent successfully");
   } catch (error) {
+    logger.error("Failed to send email", { error: error.message });
     throw new ApiError(error);
   }
 };

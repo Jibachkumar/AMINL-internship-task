@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { app } from "./app.js";
 import { connectDB } from "./db/index.js";
+import logger from "./utils/logger.js";
 
 dotenv.config({
   path: "./.env",
@@ -9,7 +10,8 @@ dotenv.config({
 connectDB()
   .then(() => {
     app.listen(process.env.PORT, () => {
-      console.log(`Server is running at port localhost:${process.env.PORT}`);
+      logger.info(`Server is running at port localhost:${process.env.PORT}`);
+      logger.info(`swagger at port localhost:${process.env.PORT}/api-docs`);
     });
   })
   .catch((error) => {

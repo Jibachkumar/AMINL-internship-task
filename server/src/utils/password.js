@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import { User } from "../models/user.models.js";
+import logger from "./logger.js";
 
 dotenv.config({
   path: "./.env",
@@ -16,7 +17,6 @@ passport.use(
       callbackURL: "http://localhost:7000/api/v1/users/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log(profile, accessToken, refreshToken);
       try {
         // look up user in DB
         const user = await User.findOne({ googleId: profile.id });
@@ -33,12 +33,16 @@ passport.use(
             address: "",
             phoneNumber: "",
           });
-
+          logger.info("New user created via Google");
           return done(null, createUser);
         }
 
+        logger.info("Existing user logged in via Google OAuth");
         return done(null, user);
       } catch (error) {
+        logger.error("Error in Google OAuth strategy", {
+          error: error.message,
+        });
         return done(error, null);
       }
     }

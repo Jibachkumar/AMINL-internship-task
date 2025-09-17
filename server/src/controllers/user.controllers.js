@@ -7,6 +7,7 @@ import {
 } from "../utils/cloudinary.js";
 import crypto from "crypto";
 import { sendMail } from "../utils/sendMail.js";
+import logger from "../utils/logger.js";
 
 // helper function
 const generateAccessAndRefreshToken = async (userId) => {
@@ -18,8 +19,13 @@ const generateAccessAndRefreshToken = async (userId) => {
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
+    logger.info("Access and refresh tokens generated");
+
     return { accessToken, refreshToken };
   } catch (error) {
+    logger.error("Error in generating access and refresh tokens", {
+      error: error.message,
+    });
     throw new ApiError(
       500,
       "Something went wrong while generating access and refresh token"
@@ -32,12 +38,14 @@ const registerUser = async (req, res, next) => {
     const { userName, email, address, phoneNumber, password } = req.body;
 
     if (!userName || !email || !address || !phoneNumber || !password) {
+      logger.warn("Register attempt with missing fields");
       throw new ApiError(400, "all field are required");
     }
     // check user already exit
     const existedUser = await User.findOne({ email });
 
     if (existedUser) {
+      logger.warn("User with email already exists");
       throw new ApiError(409, "User with email is already exits");
     }
 
@@ -45,6 +53,9 @@ const registerUser = async (req, res, next) => {
     console.log("coverImageLocalPath: ", coverImageLocalPath);
 
     if (!coverImageLocalPath) {
+      logger.warn("User registration missing cover image", {
+        coverImageLocalPath,
+      });
       throw new ApiError(400, "cover image file is required");
     }
 
@@ -66,8 +77,10 @@ const registerUser = async (req, res, next) => {
     const createdUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
+    logger.info("User registered successfully");
 
     if (!createdUser) {
+      logger.warn("user registering failed");
       throw new ApiError(
         500,
         "Something went wrong while registering the user"
@@ -78,6 +91,7 @@ const registerUser = async (req, res, next) => {
       .status(201)
       .json({ createdUser, message: "User register Successfully " });
   } catch (error) {
+    logger.error("Error in registerUser controller", { error: error.message });
     next(error);
   }
 };
@@ -85,20 +99,22 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log(password, email);
 
     if (!email || !password) {
+      logger.warn("Login attempt with missing fields");
       throw new ApiError(400, "all field is required");
     }
 
     const user = await User.findOne({ email });
     if (!user) {
+      logger.warn("Login failed: user not found");
       throw new ApiError(404, "user not found");
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
 
     if (!isPasswordValid) {
+      logger.warn("Login failed: incorrect password");
       throw new ApiError(401, "Password is Incorrect");
     }
 
@@ -110,7 +126,7 @@ const loginUser = async (req, res, next) => {
       "-password -refreshToken"
     );
 
-    console.log("loggedInUser", loggedInUser);
+    logger.info("User logged in successfully");
     // return response
     const options = {
       httpOnly: true,
@@ -126,6 +142,7 @@ const loginUser = async (req, res, next) => {
         message: "User logged In Successfully",
       });
   } catch (error) {
+    logger.error("Error in loginUser controller", { error: error.message });
     next(error);
   }
 };
@@ -142,22 +159,26 @@ const logoutUser = async (req, res, next) => {
       { new: true }
     );
 
+    logger.info("User logged out successfully");
+
     const options = {
       httpOnly: true,
       secure: true,
     };
 
-    res
+    return res
       .status(200)
       .clearCookie("accessToken", options)
       .clearCookie("refreshToken", options)
       .json({ user: {}, message: "User Logged Out Successfully" });
   } catch (error) {
+    logger.error("Error in logoutUser controller", { error: error.message });
     next(error);
   }
 };
 
 const getCurrentUser = async (req, res) => {
+  logger.info("user fetched successfully");
   return res
     .status(200)
     .json({ user: req?.user, message: "user fetched successfully" });
@@ -168,6 +189,7 @@ const refreshAccessToken = async (req, res, next) => {
     const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
+      logger.warn("Refresh token missing in request");
       throw new ApiError(401, "unauthorized request");
     }
 
@@ -179,10 +201,12 @@ const refreshAccessToken = async (req, res, next) => {
     const user = await User.findById(decodedToken?._id);
 
     if (!user) {
+      logger.warn("User not found for provided refresh token");
       throw new ApiError(401, "Invalid refresh token");
     }
 
     if (incomingRefreshToken !== user.refreshToken) {
+      logger.warn("Refresh token is expired or already used");
       throw new ApiError(401, "Refresh token is expired or used");
     }
 
@@ -195,12 +219,17 @@ const refreshAccessToken = async (req, res, next) => {
       user._id
     );
 
+    logger.info("Access token refreshed successfully");
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json({ accessToken, refreshToken, message: "Access token refreshed" });
   } catch (error) {
+    logger.error("Error in refreshAccessToken controller", {
+      error: error.message,
+    });
     next(error);
   }
 };
@@ -213,6 +242,7 @@ const updateAccountDetails = async (req, res, next) => {
     const localCoverImage = req.files?.coverImage?.[0]?.path;
 
     if (!userName && !address && !phoneNumber && !email && !localCoverImage) {
+      logger.warn("Update attempt with no fields provided");
       throw new ApiError(400, "Sorry you did not provide any field to update");
     }
 
@@ -224,7 +254,10 @@ const updateAccountDetails = async (req, res, next) => {
     if (localCoverImage) {
       const currentUser = await User.findById(req.user._id);
 
-      await deleteImageFromCloudinary(currentUser.coverImage.public_id);
+      if (currentUser?.coverImage?.public_id) {
+        await deleteImageFromCloudinary(currentUser.coverImage.public_id);
+        logger.info("Deleted old cover image from Cloudinary");
+      }
 
       const coverImage = await uploadOnCloudinary(localCoverImage);
       if (coverImage) {
@@ -244,13 +277,19 @@ const updateAccountDetails = async (req, res, next) => {
     ).select("-password -refreshToken");
 
     if (!user) {
+      logger.warn("User not found for update");
       throw new ApiError(404, "User not found");
     }
+
+    logger.info("User profile updated successfully");
 
     return res
       .status(200)
       .json({ user, message: "Profile updated Successfully" });
   } catch (error) {
+    logger.error("Error in updateAccountDetails controller", {
+      error: error.message,
+    });
     next(error);
   }
 };
@@ -258,8 +297,15 @@ const updateAccountDetails = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+
+    if (!email) {
+      logger.warn("Forgot password request with missing email");
+      throw new ApiError(400, "Email is required");
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
+      logger.warn("Forgot password attempted for non-existent user");
       throw new ApiError(404, "User not found");
     }
 
@@ -276,6 +322,8 @@ const forgotPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
+    logger.info("Password reset token generated and saved");
+
     const resetUrl = `${process.env.CORS_ORIGIN}/reset-password/${resetToken}`;
     const message = `
       <h2>Password Reset Request</h2>
@@ -289,8 +337,13 @@ const forgotPassword = async (req, res, next) => {
       html: message,
     });
 
-    res.status(200).json({ message: "Reset link sent to your mail" });
+    logger.info("Password reset email sent");
+
+    return res.status(200).json({ message: "Reset link sent to your mail" });
   } catch (error) {
+    logger.error("Error in forgotPassword controller", {
+      error: error.message,
+    });
     next(error);
   }
 };
@@ -299,6 +352,11 @@ const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
+
+    if (!password) {
+      logger.warn("Reset password attempt with missing password");
+      throw new ApiError(400, "Password is required");
+    }
 
     const resetTokenHash = crypto
       .createHash("sha256")
@@ -311,6 +369,7 @@ const resetPassword = async (req, res, next) => {
     });
 
     if (!user) {
+      logger.warn("Invalid or expired password reset token");
       throw new ApiError(400, "Invalid or expired token");
     }
 
@@ -320,8 +379,11 @@ const resetPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
+    logger.info("Password reset successfully");
+
     return res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
+    logger.error("Error in resetPassword controller", { error: error.message });
     next(error);
   }
 };
@@ -334,11 +396,10 @@ const googleLogin = async (req, res, next) => {
       user._id
     );
 
-    const loggedInUser = await User.findById(user._id).select(
-      "-password -refreshToken"
-    );
+    await User.findById(user._id).select("-password -refreshToken");
 
-    console.log("loggedInUser", loggedInUser);
+    logger.info("User logged in via Google");
+
     // return response
     const options = {
       httpOnly: true,
@@ -351,6 +412,7 @@ const googleLogin = async (req, res, next) => {
       .cookie("refreshToken", refreshToken, options)
       .redirect(`${process.env.CORS_ORIGIN}`);
   } catch (error) {
+    logger.error("Error in googleLogin controller", { error: error.message });
     next(error);
   }
 };

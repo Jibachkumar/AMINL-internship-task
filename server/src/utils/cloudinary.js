@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { ApiError } from "./ApiError.js";
+import logger from "./logger.js";
 
 dotenv.config({
   path: "./.env",
@@ -15,18 +16,21 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFilePath, folder = "Todos") => {
   try {
-    if (!localFilePath) return null;
+    if (!localFilePath) {
+      logger.warn("No file path provided for Cloudinary upload");
+      return null;
+    }
     //upload the file on cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
       folder: folder,
     });
     // file has been uploaded successfull
-    console.log("file is uploaded on cloudinary ", response);
+    logger.info("File uploaded to Cloudinary successfully");
     fs.unlinkSync(localFilePath);
     return response;
   } catch (error) {
-    console.error("Cloudinary error:", error.message);
+    logger.error("Cloudinary upload failed", { error: error.message });
     fs.unlinkSync(localFilePath);
     throw new ApiError(error);
   }
