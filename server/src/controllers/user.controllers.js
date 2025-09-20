@@ -37,10 +37,6 @@ const registerUser = async (req, res, next) => {
   try {
     const { userName, email, address, phoneNumber, password } = req.body;
 
-    if (!userName || !email || !address || !phoneNumber || !password) {
-      logger.warn("Register attempt with missing fields");
-      throw new ApiError(400, "all field are required");
-    }
     // check user already exit
     const existedUser = await User.findOne({ email });
 
@@ -50,12 +46,9 @@ const registerUser = async (req, res, next) => {
     }
 
     const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
-    console.log("coverImageLocalPath: ", coverImageLocalPath);
 
     if (!coverImageLocalPath) {
-      logger.warn("User registration missing cover image", {
-        coverImageLocalPath,
-      });
+      logger.warn("User registration missing cover image");
       throw new ApiError(400, "cover image file is required");
     }
 
@@ -91,7 +84,7 @@ const registerUser = async (req, res, next) => {
       .status(201)
       .json({ createdUser, message: "User register Successfully " });
   } catch (error) {
-    logger.error("Error in registerUser controller", { error: error.message });
+    logger.error(`Error in registerUser controller ${error.message}`);
     next(error);
   }
 };
@@ -99,11 +92,6 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      logger.warn("Login attempt with missing fields");
-      throw new ApiError(400, "all field is required");
-    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -142,7 +130,7 @@ const loginUser = async (req, res, next) => {
         message: "User logged In Successfully",
       });
   } catch (error) {
-    logger.error("Error in loginUser controller", { error: error.message });
+    logger.error(`Error in loginUser controller: ${error.message}`);
     next(error);
   }
 };
@@ -241,11 +229,6 @@ const updateAccountDetails = async (req, res, next) => {
 
     const localCoverImage = req.files?.coverImage?.[0]?.path;
 
-    if (!userName && !address && !phoneNumber && !email && !localCoverImage) {
-      logger.warn("Update attempt with no fields provided");
-      throw new ApiError(400, "Sorry you did not provide any field to update");
-    }
-
     if (userName) updatedProfile.userName = userName;
     if (address) updatedProfile.address = address;
     if (phoneNumber) updatedProfile.phoneNumber = phoneNumber;
@@ -266,6 +249,15 @@ const updateAccountDetails = async (req, res, next) => {
           public_id: coverImage.public_id,
         };
       }
+    }
+
+    // Throw error only if nothing is provided
+    if (Object.keys(updatedProfile).length === 0) {
+      logger.warn("Update attempt with no fields provided");
+      throw new ApiError(
+        400,
+        "At least one field must be provided to update the account"
+      );
     }
 
     const user = await User.findByIdAndUpdate(
