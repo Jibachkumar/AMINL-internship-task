@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize";
+import logger from "../utils/logger.js";
 
 const sequelize = new Sequelize("ecommerce", "postgres", "admin", {
   host: "localhost",
@@ -9,9 +10,9 @@ const sequelize = new Sequelize("ecommerce", "postgres", "admin", {
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    logger.info("Connection has been established successfully.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    logger.error(`Unable to connect to the database: ${error.message}`);
   }
 };
 
