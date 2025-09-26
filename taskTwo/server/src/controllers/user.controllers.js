@@ -7,6 +7,7 @@ import {
 } from "../utils/cloudinary.js";
 import crypto from "crypto";
 import logger from "../utils/logger.js";
+import { ActivityLog } from "../models/activityLog.models.js";
 
 // helper function
 const generateAccessAndRefreshToken = async (userId) => {
@@ -29,6 +30,37 @@ const generateAccessAndRefreshToken = async (userId) => {
       500,
       "Something went wrong while generating access and refresh token"
     );
+  }
+};
+
+// activityLog function
+const activityLog = async (userId, action, details = {}) => {
+  try {
+    const activityLog = await ActivityLog.create({
+      userId,
+      action,
+      details,
+    });
+
+    const activityLogCreated = await ActivityLog.findOne({
+      where: { id: activityLog.id },
+    });
+
+    if (!activityLogCreated) {
+      logger.warn(" activity log registering failed");
+      throw new ApiError(
+        500,
+        "Something went wrong while registering the activity log"
+      );
+    }
+
+    console.log(activityLogCreated);
+    // return res
+    //   .status(200)
+    //   .json({ data: activityLogCreated, message: "activity log created" });
+  } catch (error) {
+    logger.error(`Error in activityLog controller ${error.message}`);
+    throw new ApiError(500, error.message);
   }
 };
 
@@ -115,6 +147,7 @@ const loginUser = async (req, res, next) => {
     });
 
     logger.info("User logged in successfully");
+    await activityLog(loggedInUser.id, "LOGIN", { email: loggedInUser.email });
     // return response
     const options = {
       httpOnly: true,
@@ -148,6 +181,7 @@ const logoutUser = async (req, res, next) => {
     );
 
     logger.info("User logged out successfully");
+    await activityLog(req.user._id, "LOGOUT", {});
 
     const options = {
       httpOnly: true,

@@ -6,7 +6,7 @@ const productModel = Joi.object({
     "string.max": "Product name must be at most 20 characters long",
     "any.required": "Product name is required",
   }),
-  price: Joi.number().integer().min(1).max(100000).required().messages({
+  price: Joi.number().integer().min(1).max(1000000).required().messages({
     "number.min": "Product price must be at least 1",
     "number.max": "Product price must be at most 100000 ",
     "any.required": "price is required",

@@ -92,6 +92,10 @@ const getProducts = async (req, res, next) => {
       order: [[sortBy, order]],
     });
 
+    if (count === 0 || rows.length === 0) {
+      throw new ApiError(404, "products not found ");
+    }
+
     logger.info("Products fetched successfully");
 
     return res.status(200).json({
