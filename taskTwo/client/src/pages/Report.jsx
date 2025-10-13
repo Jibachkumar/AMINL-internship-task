@@ -55,7 +55,7 @@ function Report() {
     const url =
       type === "excel"
         ? `${API_URL}/api/v1/orders/order-product/export?startDate=${startDate}&endDate=${endDate}`
-        : `${API_URL}/api/v1/orders/order-product/export-pdf?startDate=${startDate}&endDate=${endDate}`;
+        : `${API_URL}/api/v1/orders/report-pdf/export?startDate=${startDate}&endDate=${endDate}`;
 
     window.open(url, "_blank");
   };

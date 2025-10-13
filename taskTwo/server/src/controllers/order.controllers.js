@@ -6,6 +6,7 @@ import { Order } from "../models/order.models.js";
 import { Op } from "sequelize";
 import { sequelize } from "../db/index.js";
 import { generateExcel } from "../utils/generateExcel.js";
+import { generatePdfReport } from "../utils/generatePdfReport.js";
 
 const createOrder = async (req, res, next) => {
   try {
@@ -239,7 +240,7 @@ const exportOrderDetails = async (req, res, next) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=top_selling_${startDate}_${endDate}.xlsx`
+      `attachment; filename=all_orders_selling_${startDate}_${endDate}.xlsx`
     );
     res.setHeader(
       "Content-Type",
@@ -295,7 +296,7 @@ const exportDailySellingProducts = async (req, res, next) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=top_selling_${startDate}_${endDate}.xlsx`
+      `attachment; filename=daily_selling_${startDate}_${endDate}.xlsx`
     );
     res.setHeader(
       "Content-Type",
@@ -363,6 +364,88 @@ const exportTopSellingProducts = async (req, res, next) => {
   }
 };
 
+const exportDailySellingProductsPDF = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const orders = await Order.findAll({
+      where: {
+        createdAt: { [Op.between]: [new Date(startDate), new Date(endDate)] },
+      },
+      include: [{ model: Product, as: "product" }],
+    });
+
+    // Group by date
+    const dailyStats = {};
+    orders.forEach((order) => {
+      const date = order.createdAt.toLocaleDateString("en-CA");
+      const revenue = order.product.price * order.quantity;
+      if (!dailyStats[date])
+        dailyStats[date] = { date, totalSales: 0, totalRevenue: 0 };
+      dailyStats[date].totalSales += order.quantity;
+      dailyStats[date].totalRevenue += revenue;
+    });
+
+    const data = Object.values(dailyStats).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
+    const barData = {
+      labels: data.map((d) => d.date),
+      datasets: [
+        {
+          label: "Total Revenue",
+          data: data.map((d) => d.totalRevenue),
+          backgroundColor: "rgba(54, 162, 235, 0.6)",
+        },
+      ],
+    };
+
+    const lineData = {
+      labels: data.map((d) => d.date),
+      datasets: [
+        {
+          label: "Total Sales",
+          data: data.map((d) => d.totalSales),
+          borderColor: "rgba(75, 192, 192, 1)",
+          fill: false,
+        },
+      ],
+    };
+
+    const pieData = {
+      labels: data.map((d) => d.date),
+      datasets: [
+        {
+          label: "Total Revenue",
+          data: data.map((d) => d.totalSales),
+          backgroundColor: data.map(
+            (_, i) => `hsl(${(i * 40) % 360}, 70%, 60%)`
+          ),
+        },
+      ],
+    };
+
+    const pdfBuffer = await generatePdfReport({
+      title: `Daily Sales Report (${startDate} to ${endDate})`,
+      data,
+      barData,
+      lineData,
+      pieData,
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=daily_sales_${startDate}_${endDate}.pdf`
+    );
+    res.setHeader("Content-Type", "application/pdf");
+    res.send(pdfBuffer);
+  } catch (error) {
+    logger.error(`Error in exportDailySellingProductsPDF: ${error.message}`);
+    next(error);
+  }
+};
+
 export {
   createOrder,
   getOrderDetails,
@@ -371,4 +454,5 @@ export {
   exportTopSellingProducts,
   exportDailySellingProducts,
   exportOrderDetails,
+  exportDailySellingProductsPDF,
 };

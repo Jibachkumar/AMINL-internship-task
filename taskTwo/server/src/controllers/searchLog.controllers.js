@@ -90,7 +90,7 @@ const exportTopSearchedProducts = async (req, res, next) => {
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=top_selling_${startDate}_${endDate}.xlsx`
+      `attachment; filename=top_searching_products_${startDate}_${endDate}.xlsx`
     );
     res.setHeader(
       "Content-Type",

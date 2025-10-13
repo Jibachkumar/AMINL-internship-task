@@ -7,6 +7,7 @@ import {
   exportTopSellingProducts,
   exportDailySellingProducts,
   exportOrderDetails,
+  exportDailySellingProductsPDF,
 } from "../controllers/order.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
@@ -19,5 +20,6 @@ orderRouter.route("/top-order-product").get(getTopSellingProducts);
 orderRouter.route("/order-product/export").get(exportOrderDetails);
 orderRouter.route("/top-selling/export").get(exportTopSellingProducts);
 orderRouter.route("/daily-selling/export").get(exportDailySellingProducts);
+orderRouter.route("/report-pdf/export").get(exportDailySellingProductsPDF);
 
 export { orderRouter };
