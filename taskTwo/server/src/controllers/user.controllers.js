@@ -54,10 +54,7 @@ const activityLog = async (userId, action, details = {}) => {
       );
     }
 
-    console.log(activityLogCreated);
-    // return res
-    //   .status(200)
-    //   .json({ data: activityLogCreated, message: "activity log created" });
+    logger.info("activity log get registered");
   } catch (error) {
     logger.error(`Error in activityLog controller ${error.message}`);
     throw new ApiError(500, error.message);

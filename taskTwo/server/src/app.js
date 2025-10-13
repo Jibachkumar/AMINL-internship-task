@@ -42,10 +42,14 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 // import routes
 import { userRouter } from "./routes/user.routes.js";
 import { productRoute } from "./routes/product.routes.js";
+import { orderRouter } from "./routes/order.routes.js";
+import { searchLogRouter } from "./routes/searchLog.routes.js";
 
 // routes declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRoute);
+app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/searches", searchLogRouter);
 
 // error
 app.use((err, req, res, next) => {

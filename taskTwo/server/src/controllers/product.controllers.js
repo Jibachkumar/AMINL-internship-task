@@ -3,6 +3,7 @@ import { Product } from "../models/product.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import logger from "../utils/logger.js";
 import { Op } from "sequelize";
+import { SearchLog } from "../models/searchLog.models.js";
 
 // query hepler function
 const parseProductQuery = (query) => {
@@ -94,6 +95,15 @@ const getProducts = async (req, res, next) => {
 
     if (count === 0 || rows.length === 0) {
       throw new ApiError(404, "products not found ");
+    }
+
+    // ✅ Log searches only if the user used the `search` query
+    if (req.query.search?.trim() && rows.length > 0) {
+      const searchLogs = rows.map((product) => ({
+        productId: product.id,
+      }));
+
+      await SearchLog.bulkCreate(searchLogs, { ignoreDuplicates: true });
     }
 
     logger.info("Products fetched successfully");

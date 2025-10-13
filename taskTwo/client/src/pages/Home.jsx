@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Input from "../components/Button";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
   const button = ["electronics", "clothes", "Hardware"];
 
@@ -72,6 +74,10 @@ function Home() {
     startDate,
     endDate,
   ]);
+
+  const handleAddTOCard = (product) => {
+    navigate("/addtocard", { state: { product } });
+  };
 
   return (
     <div className="text-black">
@@ -159,6 +165,7 @@ function Home() {
             <div
               key={product.id}
               className="w-[170px] overflow-hidden border border-slate-300"
+              onClick={() => handleAddTOCard(product)}
             >
               {" "}
               <img
