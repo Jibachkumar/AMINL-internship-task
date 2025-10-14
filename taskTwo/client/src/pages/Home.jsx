@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import Input from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import { ChevronDownIcon } from "lucide-react";
 
 function Home() {
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
-  const button = ["electronics", "clothes", "Hardware"];
+  const button = ["electronics", "clothes"];
 
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
@@ -14,6 +15,7 @@ function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10);
   const [error, setError] = useState("");
+  const [openCategories, setOpenCategories] = useState(false);
 
   const [order, setOrder] = useState("DESc");
   const [sortedByPrice, setSortedByPrice] = useState("");
@@ -86,27 +88,49 @@ function Home() {
       </h2>
 
       {/*search  */}
-      <div className="max-w-6xl flex mx-auto">
+      <div className="max-w-5xl flex mx-auto">
+        {/* filter by category */}
+        <div className="relative inline-block text-left">
+          {/* Export Button */}
+          <button
+            onClick={() => setOpenCategories((prev) => !prev)}
+            className="px-2 py-2 text-sm font-medium text-black border border-black/35 rounded-sm flex items-center gap-2"
+          >
+            Categories
+            <ChevronDownIcon size={16} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {openCategories && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10 flex flex-col">
+              {button.map((btn, i) => (
+                <button
+                  onClick={() => {
+                    setOpenCategories(false);
+                    handleCategory(btn);
+                  }}
+                  key={i}
+                  className="font-semibold text-sm border-b last:border-b-0 border-gray-200 px-4 py-2 text-gray-700 hover:bg-orange-100 hover:text-orange-700 cursor-pointer transition"
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <Input
           value={searchInput}
           placeholder="Search e-commerce"
           onChange={setSearchInput}
-          className="w-full border border-black/35 rounded-md hover:border-indigo-900 placeholder:pl-2"
+          className="w-full border border-black/35 rounded-md placeholder:pl-2"
         />
-        <button onClick={handleSearch}>search</button>
-      </div>
-
-      {/* filter by category */}
-      <div className="flex gap-x-5 justify-center mt-10">
-        {button.map((btn, i) => (
-          <button
-            onClick={() => handleCategory(btn)}
-            key={i}
-            className="font-semibold text-md border border-slate-400 px-10 py-10 rounded-full hover:border-orange-700 cursor-pointer"
-          >
-            {btn}
-          </button>
-        ))}
+        <button
+          onClick={handleSearch}
+          className="bg-black text-white px-2 rounded-sm shadow-sm"
+        >
+          search
+        </button>
       </div>
 
       {/* Price / Date / Sort Inputs */}

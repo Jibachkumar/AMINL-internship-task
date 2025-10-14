@@ -1,7 +1,15 @@
-import React from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Header() {
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("user"))
+  );
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
   return (
     <div className="px-20 py-4">
       <nav className="flex justify-between text-white font-serif">
@@ -14,16 +22,25 @@ function Header() {
         </div>
 
         <div>
-          <Link to="/login">
-            <button className="bg-white/85 mr-24 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer">
-              Login
-            </button>
-          </Link>
           <Link to="/report">
-            <button className="bg-white/85 mr-24 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer">
+            <button className="bg-white/85 mr-90 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer">
               Report
             </button>
           </Link>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="bg-white/85 mr-36 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link to="/login">
+              <button className="bg-white/85 mr-36 px-3 py-1 rounded-md shaow-md text-black hover:scale-105 transition-all duration-300 cursor-pointer">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       </nav>
     </div>

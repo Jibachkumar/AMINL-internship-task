@@ -17,7 +17,7 @@ function Report() {
   const [dailySalesReport, setDailySalesReport] = useState(false);
 
   const [startDate, setStartDate] = useState("2025-10-09");
-  const [endDate, setEndDate] = useState("2025-10-13");
+  const [endDate, setEndDate] = useState("2025-10-15");
 
   const { orderData } = useOrderData(startDate, endDate);
   const { topSoldProduct } = useTopSoldProduct(startDate, endDate);

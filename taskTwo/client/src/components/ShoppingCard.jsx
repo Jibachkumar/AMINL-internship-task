@@ -1,16 +1,51 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function ShoppingCard() {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const location = useLocation();
+  const navigate = useNavigate();
+
   const { product } = location.state || {};
   console.log(product);
   const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState("");
 
-  const handleOrderProduct = async () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleOrderProduct = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch(``);
-    } catch (error) {}
+      const repsonse = await fetch(
+        `${API_URL}/api/v1/orders/buy/${product.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.accessToken}`,
+          },
+          body: JSON.stringify({
+            quantity,
+          }),
+          credentials: "include",
+        }
+      );
+
+      const data = await repsonse.json();
+      console.log(data);
+
+      if (!repsonse.ok) {
+        throw new Error(data.message);
+      }
+
+      if (data) {
+        alert(`✅ Order placed successfully`);
+        navigate("/");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -59,35 +94,37 @@ function ShoppingCard() {
           </div>
 
           {/* Quantity Selector */}
-          <div className="flex items-center gap-3 mb-5">
-            <p className="text-sm">Quantity</p>
-            <div className="flex items-center border border-slate-300 rounded-md">
+          <form onSubmit={handleOrderProduct}>
+            <div className="flex items-center gap-3 mb-5">
+              <p className="text-sm">Quantity</p>
+              <div className="flex items-center border border-slate-300 rounded-md">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="px-3 py-1 text-xl font-bold text-gray-600"
+                >
+                  -
+                </button>
+                <span className="px-4">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => (product.stock, q + 1))}
+                  disabled={quantity === product.stock}
+                  className="px-3 py-1 text-xl font-bold text-gray-600"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            {/* Buttons */}
+            <div className="flex gap-4">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-3 py-1 text-xl font-bold text-gray-600"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md transition"
+                type="submit"
               >
-                -
-              </button>
-              <span className="px-4">{quantity}</span>
-              <button
-                onClick={() => setQuantity((q) => (product.stock, q + 1))}
-                disabled={quantity === product.stock}
-                className="px-3 py-1 text-xl font-bold text-gray-600"
-              >
-                +
+                Add to Cart
               </button>
             </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-4">
-            <button
-              className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md transition"
-              onClick={handleOrderProduct}
-            >
-              Add to Cart
-            </button>
-          </div>
+            {error && <p className="text-red-600 mt-3">{error}</p>}
+          </form>
         </div>
       </div>
     </div>

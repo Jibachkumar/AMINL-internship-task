@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
 import ShoppingCard from "./components/ShoppingCard.jsx";
 import Report from "./pages/Report.jsx";
 
@@ -16,10 +17,10 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />,
       },
-      // {
-      //   path: "/signup",
-      //   element: <Signup />,
-      // },
+      {
+        path: "/signup",
+        element: <Signup />,
+      },
       {
         path: "/login",
         element: <Login />,
