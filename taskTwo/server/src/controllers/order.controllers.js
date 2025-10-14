@@ -414,10 +414,10 @@ const exportDailySellingProductsPDF = async (req, res, next) => {
     };
 
     const pieData = {
-      labels: data.map((d) => d.date),
+      labels: data.map((d) => d.date + " : " + d.totalSales),
       datasets: [
         {
-          label: "Total Revenue",
+          label: "Total sales",
           data: data.map((d) => d.totalSales),
           backgroundColor: data.map(
             (_, i) => `hsl(${(i * 40) % 360}, 70%, 60%)`
