@@ -60,35 +60,26 @@ function Report() {
     window.open(url, "_blank");
   };
 
-  const handleExportDailySelling = (type) => {
+  const handleExportDailySelling = () => {
     setDailySales(false);
 
-    const url =
-      type === "excel"
-        ? `${API_URL}/api/v1/orders/daily-selling/export?startDate=${startDate}&endDate=${endDate}`
-        : `${API_URL}/api/v1/orders/daily-selling/export-pdf?startDate=${startDate}&endDate=${endDate}`;
+    const url = `${API_URL}/api/v1/orders/daily-selling/export?startDate=${startDate}&endDate=${endDate}`;
 
     window.open(url, "_blank");
   };
 
-  const handleExportTopSelling = (type) => {
+  const handleExportTopSelling = () => {
     setOpen(false);
 
-    const url =
-      type === "excel"
-        ? `${API_URL}/api/v1/orders/top-selling/export?startDate=${startDate}&endDate=${endDate}`
-        : `${API_URL}/api/v1/orders/top-selling/export-pdf?startDate=${startDate}&endDate=${endDate}`;
+    const url = `${API_URL}/api/v1/orders/top-selling/export?startDate=${startDate}&endDate=${endDate}`;
 
     window.open(url, "_blank");
   };
 
-  const handleExportTopSearch = (type) => {
+  const handleExportTopSearch = () => {
     setSearch(false);
 
-    const url =
-      type === "excel"
-        ? `${API_URL}/api/v1/searches/top-search/export?startDate=${startDate}&endDate=${endDate}`
-        : `${API_URL}/api/v1/searches/top-search/export-pdf?startDate=${startDate}&endDate=${endDate}`;
+    const url = `${API_URL}/api/v1/searches/top-search/export?startDate=${startDate}&endDate=${endDate}`;
 
     window.open(url, "_blank");
   };
@@ -193,15 +184,6 @@ function Report() {
             <p className="text-xs ">Total Revenue</p>
           </div>
         </div>
-        {/* <div className="bg-white shadow-md rounded-md p-4 flex flex-col justify-between">
-              <div className="flex items-center mb-2">
-                <i className="fa-solid fa-id-card-clip"></i>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold ">{user}</p>
-                <p className="text-xs ">Total User</p>
-              </div>
-            </div> */}
       </div>
 
       {/* bar chart  */}
@@ -219,7 +201,7 @@ function Report() {
                 Daily Sales Report
               </h2>
               <p className="text-sm text-gray-500">
-                Jun 01, 2023 – Jun 07, 2023
+                {startDate} – {endDate}
               </p>
             </div>
             <div className="relative inline-block text-left">
@@ -236,16 +218,10 @@ function Report() {
               {dailySales && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                   <button
-                    onClick={() => handleExportDailySelling("excel")}
+                    onClick={handleExportDailySelling}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   >
                     Export as Excel
-                  </button>
-                  <button
-                    onClick={() => handleExportDailySelling("pdf")}
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  >
-                    Export as PDF
                   </button>
                 </div>
               )}
@@ -333,16 +309,10 @@ function Report() {
               {open && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                   <button
-                    onClick={() => handleExportTopSelling("excel")}
+                    onClick={handleExportTopSelling}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   >
                     Export as Excel
-                  </button>
-                  <button
-                    onClick={() => handleExportTopSelling("pdf")}
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  >
-                    Export as PDF
                   </button>
                 </div>
               )}
@@ -405,16 +375,10 @@ function Report() {
               {search && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                   <button
-                    onClick={() => handleExportTopSearch("excel")}
+                    onClick={handleExportTopSearch}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                   >
                     Export as Excel
-                  </button>
-                  <button
-                    onClick={() => handleExportTopSelling("pdf")}
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  >
-                    Export as PDF
                   </button>
                 </div>
               )}

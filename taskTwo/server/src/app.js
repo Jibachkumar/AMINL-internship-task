@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
+import http from "http";
+import { socket } from "./sockets/socket.js";
 
 dotenv.config({
   path: "./.env",
@@ -59,4 +61,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-export { app };
+// socket config
+const server = http.createServer(app);
+socket(server);
+
+export { app, server };
