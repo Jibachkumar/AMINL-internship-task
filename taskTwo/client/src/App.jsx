@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
+import ChatMessage from "./components/ChatMessage";
 
 import "./App.css";
 
@@ -16,6 +17,9 @@ function App() {
         <main className="w-full ">
           <Outlet />
         </main>
+        <div className="relative">
+          <ChatMessage />
+        </div>
       </div>
     </>
   );
