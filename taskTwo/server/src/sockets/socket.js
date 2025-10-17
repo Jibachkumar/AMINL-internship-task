@@ -42,8 +42,6 @@ const socket = (server) => {
     }
   });
 
-  const users = new Map();
-
   io.on("connection", async (socket) => {
     logger.info("socket is connected");
     logger.info(
@@ -116,21 +114,7 @@ const socket = (server) => {
 
     // Handle disconnection
     socket.on("disconnect", () => {
-      const username = users.get(socket.id);
-
-      users.delete(socket.id);
       logger.info(`🔴 ${socket.user.userName} disconnected`);
-
-      io.emit("user-list", {
-        users: Array.from(users.values()),
-        count: users.size,
-      });
-
-      // user left the chat
-      io.emit("user-left", {
-        text: `${username} left the chat.`,
-        sender: "system",
-      });
     });
   });
 
